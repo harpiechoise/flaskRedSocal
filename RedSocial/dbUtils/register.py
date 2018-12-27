@@ -31,6 +31,7 @@ def confirmar(ID):
     new_value = {'$set':{"confirm":True}}
     count = tabla.update_one(id_modify, new_value)
     print(count.modified_count, ' Valores modificados')
+    return True
     
 def delete(ID):
     tabla = connection()
@@ -47,6 +48,16 @@ def find_one(ID):
     var = tabla.find_one({'_id':ObjectId(ID)})
     return dumps(var)
 
+def return_confirmed(correo):
+    tabla = connection()
+    var = tabla.find_one({'mail':correo})
+    try:
+        if var["confirm"] == True:
+            return (True, str(var["_id"]), var["mail"])
+        elif var["confirm"] == False:
+            return (False, 0, 0)
+    except:
+        return (3,0,0)
 if __name__ == '__main__':
     find_all()
-    delete('5c2549b3cbe41b330458d602')
+    
