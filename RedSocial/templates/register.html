@@ -24,11 +24,11 @@
             <div class="col-6 mx-auto">
                 <div class="jumbotron bg-dark text-white">
                     <h1 class="display-4">Registrate</h1>
-                    {% with messages = get_flashed_messages() %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <p class="text-danger">{{ message }}</p>
-                                {% endfor %}
+                    {% with messages = get_flashed_messages() %} <!--Obtenemos los mensajes que le pasamos por el matodo flash-->
+                            {% if messages %} <!--Detectamos si existen mensajes-->
+                                {% for message in messages %} <!--Iteramos los mensajes-->
+                                    <p class="text-danger">{{ message }}</p> <!--Para cada mensaje creamos un parrafo-->
+                                {% endfor %} <!-- Cerramos las etiquetas--> 
                             {% endif%}
                         {% endwith %}
                     <form method="POST">
