@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from bson.json_util import dumps
 from datetime import datetime
+from cripto import encription
 import json
 def connection():
     client = MongoClient() #Creamos el cliente de mongo
@@ -20,7 +21,7 @@ def registrar_usuario(mail, contraseña):
     new_user['date'] = datetime.now().timestamp() #Obtenemos la hora del registro
     new_user['mail'] = mail #Guardamos el mail
     #TODO: Encriptar contraseñas
-    new_user['contraseña'] = contraseña #Guardamos la contraseña
+    new_user['contraseña'] = encription.encryptPass(contraseña) #Guardamos la contraseña
     new_user['confirm'] = False #Guardamos la confirmacion por correo como falsa porque no se ha hecho
     user_id = tabla.insert(new_user) #Insertamos el usuario y guardamos su ID
     return user_id #Retornamos la ID para usarla despues
@@ -30,10 +31,11 @@ def confirmar(ID):
     id_modify = {"_id":ObjectId(ID)} #Ponemos la id de usuario para hacer la busqueda
     new_value = {'$set':{"confirm":True}} #Ponemos el nuevo valor que seria confirmado
     count = tabla.update_one(id_modify, new_value) #Actualizamos los valores de confirmacion
-    if count > 0: #Si se modificaron valores
-        return True #Retornamos que se modificaron los valores de la tabla
+    if count.modified_count > 0:
+        return True
     else:
-        return False #Retornamos que no se encontraron dichos valores
+        return False
+
 #Funciones para testear
 def delete(ID):
     tabla = connection() #Obtenemos la tabla 
@@ -56,16 +58,21 @@ def delete_all():
         ID = i['_id']['$oid'] #Obtenemos la ID para borrar
         delete(ID) #Borramos el valor
 
-def return_confirmed(correo):
+def return_confirmed(correo, password):
     tabla = connection() #Obtenemos la tabla
     var = tabla.find_one({'mail':correo}) #Buscamos el valor con ese correo 
-    try:
-        if var["confirm"] == True: #Intentamos buscar el valor
-            return (True, str(var["_id"]), var["mail"]) #Retornamos que el usuario esta confirmado
-        elif var["confirm"] == False:
-            return (False, 0, 0) #Retornamos que esta registrado pero no confirmado
-    except:
-        return (3,0,0) #Retornamos que no esta registrado
+    password_enc = var['contraseña'] #Obtenemos la contraseña de la base de datos
+    password_check = encription.decriptPass(password, password_enc) #Obtenemos la respuesta de encripcion
+    if password_check:
+        try:
+            if var["confirm"] == True: #Intentamos buscar el valor
+                return (True, str(var["_id"]), var["mail"]) #Retornamos que el usuario esta confirmado
+            elif var["confirm"] == False:
+                return False #Retornamos que esta registrado pero no confirmado
+        except:
+            return 3 #Retornamos que no esta registrado
+    else:
+        return 4
 if __name__ == '__main__': #Si se ejecuta desde este archivo
     delete_all() #
     find_all()   #

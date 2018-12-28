@@ -32,6 +32,13 @@
         <div class="col-6 mx-auto">
             <div class="jumbotron bg-dark text-white">
                 <h1 class="display-4">Entra al sitio</h1>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                        <p class="text-danger">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 <form method="POST">
                     <label for="email">Ingrese su mail</label>
                     <input type="text" class="form-control mt-3 mb-3" name="email">

@@ -29,7 +29,7 @@ Hasta ahora lo que he hecho es una pagina de registro con confirmación de corre
 #### Python:
 - [x] Hacer la lógica central del registro de usuario
 - [x] Escribir el código de los tokens
-- [ ] Encriptar Contraseña
+- [x] Encriptar Contraseña
 - [ ] Hacer la logica del login 
 - [ ] Escribir el codigo de la pagina principal
 - [ ] Escribir el codigo de las publicaciones

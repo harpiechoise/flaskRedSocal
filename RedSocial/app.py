@@ -13,17 +13,31 @@ app.config.update(dict(                     #
     MAIL_PORT = 587,                        # Configuramos la smtp gratis de gmail
     MAIL_USE_TLS = True,                    #   
     MAIL_USE_SSL = False,                   #
-    MAIL_USERNAME = 'Email',                #
-    MAIL_PASSWORD = 'Contraseña',           #
+    MAIL_USERNAME = 'Mail',                 #
+    MAIL_PASSWORD = 'Password',             #
 ))
 mailServer.init_app(app) #Iniciamos el servidor de correos
 app.secret_key = os.urandom(32) #Ponemos la secret key encriptar las sessions y cookies
 @app.route('/', methods=["GET", "POST"]) #Configuramos la ruta de indice
 def index():
     if request.method == "POST": #Si el usuario apreta el boton del formulario
-        session['mail'] = request.form.get('email') #Obtenemos el valor del campo con nombre emal
+        mail = request.form.get('email') #Obtenemos el valor del campo con nombre emal
+        password = request.form.get('pass') #Obtenemos el valor del campo pass
+        mongo_resp = registrarDB.return_confirmed(mail, password)
+        if type(mongo_resp) == tuple:
+            if mongo_resp[0] == True:
+                return "Hola "+mongo_resp[2]
+        else:
+            if mongo_resp == False:
+                session['register'] = True
+                return redirect(url_for('confirm'))
+            elif mongo_resp == 3:
+                return redirect(url_for('register'))
+            elif mongo_resp == 4:
+                msg = "Revisa tu contraseña y/o usuario"
+                flash(msg)
         #TODO: comparacion de contraseñas
-        return redirect(url_for('login')) #Redireccionamos al metodo login que esta mas abajo
+        #return redirect(url_for('login')) #Redireccionamos al metodo login que esta mas abajo
     
     return render_template('index.html') #Cuando el metodo sea GET renderizamos la template index.html
 
@@ -77,24 +91,28 @@ def gracias():
     else: #Si npo esta la cookie
         return "Algo ha salido mal :(" #Enviamos una string al navegador
 
-@app.route('/login') #Configuramos la ruta login
-def login():
-    if 'mail' in session: #Si la sesion contiene un mail
-        mail = session.get('mail') #Obtenemos el email de las cookies
-        mongoResp = registrarDB.return_confirmed(mail) #Comprobamos si esta confirmado
-        if mongoResp[0] == True: #Si esta confirmado
-            return "bienvenido: "+mail #Le damos una bienvenida
-            #TODO: Pagina de incio de usuario
-        elif mongoResp[0] == False: #Si la respuesta de mongo es falsa
-            session.pop('mail', None) # Quitamos el mail de las cookies
-            session['register'] = True # Ponemos la cooke para mostrar la pagina para confirmar mail
-            return redirect(url_for('confirm'))
-        elif mongoResp[0] == 3: #Si el usuario no esta registrado
-            session.pop('mail', None) #Quitamos el mail de las cookies
+#@app.route('/login') #Configuramos la ruta login
+#def login():
+#    if 'mail' in session: #Si la sesion contiene un mail
+#        mail = session.get('mail') #Obtenemos el email de las cookies
+#        password = session.get('password')
+#        session.pop('password', None)
+#        mongoResp = registrarDB.return_confirmed(mail, password) #Comprobamos si esta confirmado
+#        if mongoResp[0] == True: #Si esta confirmado
+#            return "bienvenido: "+mail #Le damos una bienvenida
+#            #TODO: Pagina de incio de usuario
+#        elif mongoResp[0] == False: #Si la respuesta de mongo es falsa
+#             # Quitamos el mail de las cookies
+#            session['register'] = True # Ponemos la cooke para mostrar la pagina para confirmar mail
+#            session.pop('mail', None)
+#            return redirect(url_for('confirm'))
+#        elif mongoResp[0] == 3: #Si el usuario no esta registrado
+            #Quitamos el mail de las cookies
             #TODO: Autorellenado de formulario
-            return redirect(url_for('register')) #Y lo redireccionamos a la pagina de registro
-    else: #Si no tiene un mail
-        return "Algo salio mal :(" #Enviamos un string al navegador
+#            session.pop('mail', None)
+#            return redirect(url_for('register')) #Y lo redireccionamos a la pagina de registro
+#    else: #Si no tiene un mail
+#        return "Algo salio mal :(" #Enviamos un string al navegador
 
         
     
