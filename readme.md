@@ -14,15 +14,16 @@ Hasta ahora lo que he hecho es una pagina de registro con confirmación de corre
 - [x] Diseño del la pagina de Register
 - [x] Diseño la pagina confirmar correo
 - [x] Diseño la pagina de agradecimientos luego de confirmar
-- [ ]  Diseño de la landing page de usuario
+- [x] Herencia de templates
+- [ ] Diseño de la landing page de usuario
 - [ ] Diseño del perfil de cada usuario
 - [ ] Diseño de un muro para compartir cosas 
-- [ ]  Diseño de una sección personalizable de usuario
-- [ ]  Diseño de los post 
+- [ ] Diseño de una sección personalizable de usuario
+- [ ] Diseño de los post 
 
 #### Mongo:
-- [x]  Diseñar base de datos de usuario
-- [x]  Diseñar base de datos de tokens
+- [x] Diseñar base de datos de usuario
+- [x] Diseñar base de datos de tokens
 - [ ] Diseñar base de datos de publicaciones
 - [ ] Diseñar base de datos de perfil
 

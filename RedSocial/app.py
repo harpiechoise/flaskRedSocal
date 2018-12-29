@@ -13,8 +13,8 @@ app.config.update(dict(                     #
     MAIL_PORT = 587,                        # Configuramos la smtp gratis de gmail
     MAIL_USE_TLS = True,                    #   
     MAIL_USE_SSL = False,                   #
-    MAIL_USERNAME = 'Mail',                 #
-    MAIL_PASSWORD = 'Password',             #
+    MAIL_USERNAME = 'Email',                #
+    MAIL_PASSWORD = 'password',             #
 ))
 mailServer.init_app(app) #Iniciamos el servidor de correos
 app.secret_key = os.urandom(32) #Ponemos la secret key encriptar las sessions y cookies
@@ -24,22 +24,26 @@ def index():
         mail = request.form.get('email') #Obtenemos el valor del campo con nombre emal
         password = request.form.get('pass') #Obtenemos el valor del campo pass
         mongo_resp = registrarDB.return_confirmed(mail, password)
-        if type(mongo_resp) == tuple:
-            if mongo_resp[0] == True:
-                return "Hola "+mongo_resp[2]
+        if mail == '' or password == '':
+            msg = "No dejes campos en blanco"
+            flash(msg)
         else:
-            if mongo_resp == False:
-                session['register'] = True
-                return redirect(url_for('confirm'))
-            elif mongo_resp == 3:
-                return redirect(url_for('register'))
-            elif mongo_resp == 4:
-                msg = "Revisa tu contraseña y/o usuario"
-                flash(msg)
+            if type(mongo_resp) == tuple:
+                if mongo_resp[0] == True:
+                    return "Hola "+mongo_resp[2]
+            else:
+                if mongo_resp == False:
+                    session['register'] = True
+                    return redirect(url_for('confirm'))
+                elif mongo_resp == 3:
+                    return redirect(url_for('register'))
+                elif mongo_resp == 4:
+                    msg = "Revisa tu contraseña y/o usuario"
+                    flash(msg)
         #TODO: comparacion de contraseñas
         #return redirect(url_for('login')) #Redireccionamos al metodo login que esta mas abajo
     
-    return render_template('index.html') #Cuando el metodo sea GET renderizamos la template index.html
+    return render_template('login/index.html', titulo='Incio') #Cuando el metodo sea GET renderizamos la template index.html
 
 @app.route('/register', methods=["GET", "POST"]) #Configuramos la ruta register
 def register(): 
@@ -47,29 +51,33 @@ def register():
         mail = request.form.get('email') #Se obtiene el valor del campo con nombre email
         password = request.form.get('pass') #Se obtiene el valor del campo con nombre pass
         confirm_pass = request.form.get('pass2') # Se obtiene el valor del campo pass2
-        if not password == confirm_pass: # Si las contraseñas no coinciden
-            password_error = 'Las contaseñas no coinciden' #Creamos un mensaje que diga las contraseñas no coinciden
-            flash(password_error) #Mandamos el mensaje al HTML con el metodo "flash"
-        else: #Si las contraseñas coinciden
-           user_id = registrarDB.registrar_usuario(mail, password) # Registramos el usuario con la funcion registrar usuario 
-           if not user_id: #Si el usuario ya existe
-               user_exist = "El usuario ya existe"  #
-               flash(user_exist)                    #Enviamos un mensaje al HTML con el metodo "flash"
-           else: #Si el usuario no existe
-            token = tokenDB.createToken(user_id) #Creamos el token en la base de datos
-            link = "http://127.0.0.1:5000/confirm_step/{}".format(token) #Formateamos la string con el token
-            #Creamos el mensaje de confirmacion
-            msg = Message("Confirma tu mail", sender='jcrispis56@gmail.com', recipients=[mail], body="Hola {} te damos la bienvenida a la pagina para confirmar sigue este link: \n\n{} \n\n este link tiene una duracion de 30 minutos".format(mail, link))
-            mailServer.send(msg) #Enviamos el mail
-            session['register'] = True #Creamos una cookie para decir que el usuario esta registrado
-            return redirect(url_for('confirm')) #Redireccionamos a la pagina de confirmacion 
-    return render_template('register.html') # Si el metodo es get retornamos la template
+        if (mail == '') or (password == '') or (confirm_pass == ''):
+            blank_info = 'Debes rellenar todos los campos'
+            flash(blank_info)
+        else: 
+            if not password == confirm_pass: # Si las contraseñas no coinciden
+                password_error = 'Las contaseñas no coinciden' #Creamos un mensaje que diga las contraseñas no coinciden
+                flash(password_error) #Mandamos el mensaje al HTML con el metodo "flash"
+            else: #Si las contraseñas coinciden
+                user_id = registrarDB.registrar_usuario(mail, password) # Registramos el usuario con la funcion registrar usuario 
+                if not user_id: #Si el usuario ya existe
+                    user_exist = "El usuario ya existe"  #
+                    flash(user_exist)                    #Enviamos un mensaje al HTML con el metodo "flash"
+                else: #Si el usuario no existe
+                    token = tokenDB.createToken(user_id) #Creamos el token en la base de datos
+                    link = "http://127.0.0.1:5000/confirm_step/{}".format(token) #Formateamos la string con el token
+                    #Creamos el mensaje de confirmacion
+                    msg = Message("Confirma tu mail", sender='jcrispis56@gmail.com', recipients=[mail], body="Hola {} te damos la bienvenida a la pagina para confirmar sigue este link: \n\n{} \n\n este link tiene una duracion de 30 minutos".format(mail, link))
+                    mailServer.send(msg) #Enviamos el mail
+                    session['register'] = True #Creamos una cookie para decir que el usuario esta registrado
+                    return redirect(url_for('confirm')) #Redireccionamos a la pagina de confirmacion 
+    return render_template('login/register.html') # Si el metodo es get retornamos la template
 
 @app.route('/confirm', methods=["GET"]) #Configuramos la ruta
 def confirm(): 
     if "register" in session: #Comprobamos si el usuario termino el registro
         session.pop('register', None) #Quitamos la cookie de registro
-        return render_template('confirm.html') #Devolvemos el template de confirm
+        return render_template('login/confirm.html', titulo="Confirma tu correo") #Devolvemos el template de confirm
     else:
         return "Algo ha salido mal :(" #Si no devolvemos un error
 @app.route('/confirm_step/<RegID>') #Configuramos la ruta de confirmacion y como variable leemos el token
@@ -87,7 +95,7 @@ def confirm_step(RegID): #Hacemos la funcion que se ejecuta al acceder a la ruta
 def gracias():
     if 'Redirected' in session: #Si la cookie "Redirected" esta presente
         session.pop("Redirected", None) #Quitamos la cookie
-        return render_template('gracias.html') #Enviamos el html al navegador
+        return render_template('login/gracias.html', titulo="Gacias :)") #Enviamos el html al navegador
     else: #Si npo esta la cookie
         return "Algo ha salido mal :(" #Enviamos una string al navegador
 
