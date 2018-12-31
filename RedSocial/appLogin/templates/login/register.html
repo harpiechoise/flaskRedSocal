@@ -1,0 +1,21 @@
+{% extends 'login/base/baseIndex.html'%}
+{% block content %}
+    <h1 class="display-4">Registrate</h1>
+    {% with messages = get_flashed_messages() %} <!--Obtenemos los mensajes que le pasamos por el matodo flash-->
+        {% if messages %} <!--Detectamos si existen mensajes-->
+            {% for message in messages %} <!--Iteramos los mensajes-->
+                <p class="text-danger">{{ message }}</p> <!--Para cada mensaje creamos un parrafo-->
+            {% endfor %} <!-- Cerramos las etiquetas--> 
+        {% endif%}
+    {% endwith %}
+    <form method="POST">
+
+    <label for="email">Ingrese su mail</label>
+    <input type="email" class="form-control mt-3 mb-3" name="email">
+    <label for="password">Ingrese su contraseña</label>
+    <input type="password" class="form-control mt-3 mb-3" name="pass">                            
+    <label for="pass2">Confirme contraseña</label>
+    <input type="password" class="form-control mt-3 mb-3" name="pass2">                            
+    <button type="submit" class="btn btn-lg btn-block btn-primary mt-4  mb-4 align-self-center">Registrate</button>
+    </form>
+{% endblock %}

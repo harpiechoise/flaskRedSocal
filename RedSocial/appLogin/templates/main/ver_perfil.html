@@ -1,0 +1,20 @@
+{% extends 'main/base/base.html' %}
+{% block content %}
+<h1 class="display-10 text-center mb-5">{{ nickname }}</h1>
+
+{% if not link %}
+<div class="d-flex justify-content-center">
+    <img class="rounded-circle mb-5" width="300" height="300" src={{ url_for('static', filename="profileImages/default.png") }}>
+</div>       
+{% endif %}
+{% if link %}
+<div class="d-flex justify-content-center">
+    <img class="rounded-circle mb-5" width="300" height="300" src={{ link }}>
+</div>       
+{% endif %}
+
+<p><strong>Biografia:</strong></p>
+<p>{{ biografia }}</p>
+
+
+{% endblock %}

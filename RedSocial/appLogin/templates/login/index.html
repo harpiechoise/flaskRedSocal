@@ -1,0 +1,20 @@
+{% extends 'login/base/baseIndex.html' %}
+{% block content %}
+    <h1 class="display-4">Entra al sitio</h1>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <p class="text-danger">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <label for="email">Ingrese su mail</label>
+            <input type="text" class="form-control mt-3 mb-3" name="email">
+            <label for="password">Ingrese su contraseña</label>
+            <input type="password" class="form-control mt-3 mb-3" name="pass">
+            <p class="mt-4 mb-4 ml-1 mr-1"><strong>¿No tienes una cuenta?:   <a href="/register">Registrate</a></strong></p>
+            <button type="submit" class="btn btn-lg btn-block btn-primary mt-2  mb-4 align-self-center">Logearse</button>
+        </form>
+           
+{% endblock %}
